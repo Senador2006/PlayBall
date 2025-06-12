@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayBall - Interface de Teste</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; }
+        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-button {
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 15px 20px; margin: 5px; border-radius: 10px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
+        }
+        .tab-button.active { background: white; color: #667eea; font-weight: bold; }
+        .tab-content {
+            display: none; background: white; border-radius: 15px;
+            padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid #ddd;
+            border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 15px 30px; border-radius: 8px;
+            font-size: 1rem; cursor: pointer; transition: transform 0.3s; width: 100%;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .response {
+            margin-top: 20px; padding: 15px; border-radius: 8px;
+            font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto;
+        }
+        .response.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .response.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .user-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .logout-btn { background: #dc3545; margin-top: 10px; }
+        .quick-login { background: #e9ecef; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .quick-login h3 { margin-bottom: 15px; color: #495057; }
+        .quick-login-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .quick-btn {
+            background: #6c757d; color: white; border: none; padding: 10px;
+            border-radius: 5px; cursor: pointer; font-size: 0.9rem;
+        }
+        .quick-btn:hover { background: #495057; }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚾ PlayBall</h1>
+            <p>Interface de Teste da API</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('login')">🔐 Login</button>
+            <button class="tab-button" onclick="showTab('register')">📝 Cadastro</button>
+            <button class="tab-button" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-button" onclick="showTab('player')">👤 Jogador</button>
+        </div>
+        
+        <!-- Login Tab -->
+        <div id="login" class="tab-content active">
+            <h2>🔐 Login</h2>
+            
+            <div class="quick-login">
+                <h3>🚀 Login Rápido - Usuários de Teste</h3>
+                <div class="quick-login-buttons">
+                    <button class="quick-btn" onclick="quickLogin('treinador_carlos', 'trainer')">
+                        🏃‍♂️ Carlos (Treinador)
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('jogador_lucas', 'player')">
+                        ⚾ Lucas (Jogador)
+                    </button>
+                </div>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username ou Email:</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Usuário:</label>
+                    <select id="loginUserType" required>
+                        <option value="">Selecione...</option>
+                        <option value="trainer">🏃‍♂️ Treinador</option>
+                        <option value="player">⚾ Jogador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+            </form>
+            <div id="loginResponse" class="response" style="display: none;"></div>
+        </div>
+        
+        <!-- Register Tab -->
+        <div id="register" class="tab-content">
+            <h2>📝 Cadastro de Treinador</h2>
+            <p style="margin-bottom: 20px; color: #666;">Apenas treinadores podem se cadastrar publicamente.</p>
+            <form id="registerForm">
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label>Username:</label>
+                            <input type="text" id="regUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="regEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input type="password" id="regPassword" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Nome:</label>
+                            <input type="text" id="regFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sobrenome:</label>
+                            <input type="text" id="regLastName" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Cadastrar Treinador</button>
+            </form>
+            <div id="registerResponse" class="response" style="display: none;"></div>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <h2>📊 Dashboard</h2>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <h3>Informações do Usuário</h3>
+                <div id="userDetails"></div>
+                <button class="btn logout-btn" onclick="logout()">Sair</button>
+            </div>
+            <div id="dashboardContent">
+                <p>Faça login para ver o dashboard.</p>
+            </div>
+        </div>
+        
+        <!-- Player Registration Tab -->
+        <div id="player" class="tab-content">
+            <h2>👤 Cadastrar Jogador</h2>
+            <p style="margin-bottom: 20px; color: #666;">Apenas treinadores logados podem cadastrar jogadores.</p>
+            <form id="playerForm">
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label>Username:</label>
+                            <input type="text" id="playerUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="playerEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input type="password" id="playerPassword" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Nome:</label>
+                            <input type="text" id="playerFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sobrenome:</label>
+                            <input type="text" id="playerLastName" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Cadastrar Jogador</button>
+            </form>
+            <div id="playerResponse" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let currentUser = null;
+        let authToken = null;
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function quickLogin(username, userType) {
+            document.getElementById('loginUsername').value = username;
+            document.getElementById('loginPassword').value = 'senha123';
+            document.getElementById('loginUserType').value = userType;
+        }
+
+        async function makeRequest(endpoint, method = 'GET', data = null, useAuth = false) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (useAuth && authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            const config = { method, headers };
+            if (data) config.body = JSON.stringify(data);
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                const result = await response.json();
+                return { status: response.status, data: result };
+            } catch (error) {
+                return { status: 0, data: { error: error.message } };
+            }
+        }
+
+        function showResponse(elementId, response, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `response ${isSuccess ? 'success' : 'error'}`;
+            element.textContent = JSON.stringify(response.data, null, 2);
+        }
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                username: document.getElementById('loginUsername').value,
+                password: document.getElementById('loginPassword').value,
+                user_type: document.getElementById('loginUserType').value
+            };
+            const response = await makeRequest('/auth/login', 'POST', data);
+            const isSuccess = response.status === 200;
+            if (isSuccess) {
+                authToken = response.data.access_token;
+                currentUser = response.data.user;
+                updateUserInterface();
+                showTab('dashboard');
+            }
+            showResponse('loginResponse', response, isSuccess);
+        };
+
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                username: document.getElementById('regUsername').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                first_name: document.getElementById('regFirstName').value,
+                last_name: document.getElementById('regLastName').value
+            };
+            const response = await makeRequest('/auth/register', 'POST', data);
+            const isSuccess = response.status === 201;
+            if (isSuccess) {
+                authToken = response.data.access_token;
+                currentUser = response.data.user;
+                updateUserInterface();
+                showTab('dashboard');
+            }
+            showResponse('registerResponse', response, isSuccess);
+        };
+
+        document.getElementById('playerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!authToken) {
+                alert('Você precisa estar logado como treinador!');
+                return;
+            }
+            const data = {
+                username: document.getElementById('playerUsername').value,
+                email: document.getElementById('playerEmail').value,
+                password: document.getElementById('playerPassword').value,
+                first_name: document.getElementById('playerFirstName').value,
+                last_name: document.getElementById('playerLastName').value
+            };
+            const response = await makeRequest('/auth/register-player', 'POST', data, true);
+            const isSuccess = response.status === 201;
+            if (isSuccess) {
+                document.getElementById('playerForm').reset();
+                loadProfile();
+            }
+            showResponse('playerResponse', response, isSuccess);
+        };
+
+        function updateUserInterface() {
+            if (currentUser) {
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userDetails').innerHTML = `
+                    <p><strong>Nome:</strong> ${currentUser.first_name} ${currentUser.last_name}</p>
+                    <p><strong>Email:</strong> ${currentUser.email}</p>
+                    <p><strong>Tipo:</strong> ${currentUser.user_type === 'trainer' ? '🏃‍♂️ Treinador' : '⚾ Jogador'}</p>
+                `;
+                loadProfile();
+            }
+        }
+
+        async function loadProfile() {
+            if (!authToken) return;
+            const response = await makeRequest('/auth/profile', 'GET', null, true);
+            if (response.status === 200) {
+                const profile = response.data;
+                let content = '<h3>Perfil Completo</h3>';
+                if (profile.my_players) {
+                    content += `<h4>Meus Jogadores (${profile.my_players.length})</h4>`;
+                    if (profile.my_players.length === 0) {
+                        content += '<p><em>Nenhum jogador cadastrado ainda.</em></p>';
+                    } else {
+                        profile.my_players.forEach(player => {
+                            content += `
+                                <div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                    <strong>${player.user_info.first_name} ${player.user_info.last_name}</strong><br>
+                                    <small>Username: ${player.user_info.username} | Email: ${player.user_info.email}</small>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+                if (profile.trainer_info) {
+                    content += `<h4>Meu Treinador</h4>`;
+                    content += `
+                        <div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                            <strong>${profile.trainer_info.first_name} ${profile.trainer_info.last_name}</strong><br>
+                            <small>Email: ${profile.trainer_info.email}</small>
+                        </div>
+                    `;
+                }
+                document.getElementById('dashboardContent').innerHTML = content;
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('dashboardContent').innerHTML = '<p>Faça login para ver o dashboard.</p>';
+            showTab('login');
+        }
+    </script>
+</body>
+</html> 
